@@ -9,7 +9,7 @@
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
 <title>博客</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1596360840434">
+<link rel="shortcut icon" href="/favicon.ico?v=1596722283314">
 <link rel="stylesheet" href="/media/css/pisces.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -184,7 +184,7 @@
     <div class="sidebar-item-box">
       <a href="/archives/">
         
-        <span class="site-item-stat-count">1</span>
+        <span class="site-item-stat-count">2</span>
         <span class="site-item-stat-name language" data-lan="article">文章</span>
       </a>
     </div>
@@ -240,6 +240,8 @@
   <div class="tag-cloud-list" id="tags">
     
       
+      
+        
       
         
       
@@ -507,6 +509,99 @@
       <hr>
     </div>
     <div class="result" id="result">
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="http://yangcantian.github.io/post/centos7-pei-zhi-iptables-fang-huo-qiang/"" data-c="
+          &lt;!-- more --&gt;
+&lt;p&gt;&lt;strong&gt;CentOS 7中默认是firewalld防火墙，如果使用iptables需要先关闭firewalld防火墙（1.关闭防火墙，2.取消开机启动）。&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;关闭firewalld&#34;&gt;关闭firewalld&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;systemctl stop firewalld
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;取消开机启动&#34;&gt;取消开机启动&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;systemctl disable firewalld
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;查看状态&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;firewall-cmd --state
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;先检查是否安装了iptables&#34;&gt;先检查是否安装了iptables&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;service iptables status
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;安装iptables&#34;&gt;安装iptables&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;yum install -y iptables
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;安装iptables-services&#34;&gt;安装iptables-services&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;yum -y install iptables-services
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;注册iptables服务相当于以前的chkconfig-iptables-on&#34;&gt;注册iptables服务，相当于以前的chkconfig iptables on&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;systemctl enable iptables.service
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;开启服务&#34;&gt;开启服务&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;`systemctl start iptables.service
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;查看状态&#34;&gt;查看状态&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;systemctl status iptables.service
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;查看iptables现有规则&#34;&gt;查看iptables现有规则：&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -L -n
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;添加开放80端口&#34;&gt;添加开放80端口：&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT（好像这种方式重启以后就失效了）
+&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;编辑配置文件方式添加端口：
+文件位置：/etc/sysconfig/iptables
+执行vi /etc/sysconfig/iptables
+添加一条规则开放80端口：-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+重启生效：service restart iptables
+
+systemctl stop iptables
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;查看iptables现有规则-2&#34;&gt;查看iptables现有规则&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -L -n
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;先允许所有不然有可能会杯具&#34;&gt;先允许所有,不然有可能会杯具&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -P INPUT ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;清空所有默认规则&#34;&gt;清空所有默认规则&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -F
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;清空所有自定义规则&#34;&gt;清空所有自定义规则&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -X
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;所有计数器归0&#34;&gt;所有计数器归0&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -Z
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;允许来自于lo接口的数据包本地访问&#34;&gt;允许来自于lo接口的数据包(本地访问)&lt;/h3&gt;
+&lt;p&gt;iptables -A INPUT -i lo -j ACCEPT&lt;/p&gt;
+&lt;h3 id=&#34;开放22端口&#34;&gt;开放22端口&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;开放21端口ftp&#34;&gt;开放21端口(FTP)&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;开放80端口http&#34;&gt;开放80端口(HTTP)&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;开放443端口https&#34;&gt;开放443端口(HTTPS)&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;允许ping&#34;&gt;允许ping&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;允许接受本机请求之后的返回数据-related是为ftp设置的&#34;&gt;允许接受本机请求之后的返回数据 RELATED,是为FTP设置的&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -A INPUT -m state --state  RELATED,ESTABLISHED -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;其他入站一律丢弃&#34;&gt;其他入站一律丢弃&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -P INPUT DROP
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;所有出站一律绿灯&#34;&gt;所有出站一律绿灯&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -P OUTPUT ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;所有转发一律丢弃&#34;&gt;所有转发一律丢弃&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;iptables -P FORWARD DROP
+&lt;/code&gt;&lt;/pre&gt;
+">CentOS7配置iptables防火墙</a>
+      </div>
       
       <div class="item">
         <a class="result-title" style="opacity: 0;" href="http://yangcantian.github.io/post/about/"" data-c="

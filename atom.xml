@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>http://yangcantian.github.io</id>
     <title>博客</title>
-    <updated>2020-08-02T09:34:10.933Z</updated>
+    <updated>2020-08-06T13:58:57.658Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="http://yangcantian.github.io"/>
     <link rel="self" href="http://yangcantian.github.io/atom.xml"/>
@@ -10,6 +10,102 @@
     <logo>http://yangcantian.github.io/images/avatar.png</logo>
     <icon>http://yangcantian.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, 博客</rights>
+    <entry>
+        <title type="html"><![CDATA[CentOS7配置iptables防火墙]]></title>
+        <id>http://yangcantian.github.io/post/centos7-pei-zhi-iptables-fang-huo-qiang/</id>
+        <link href="http://yangcantian.github.io/post/centos7-pei-zhi-iptables-fang-huo-qiang/">
+        </link>
+        <updated>2020-08-06T13:40:50.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+<p><strong>CentOS 7中默认是firewalld防火墙，如果使用iptables需要先关闭firewalld防火墙（1.关闭防火墙，2.取消开机启动）。</strong></p>
+<h3 id="关闭firewalld">关闭firewalld</h3>
+<pre><code class="language-python">systemctl stop firewalld
+</code></pre>
+<h3 id="取消开机启动">取消开机启动</h3>
+<pre><code>systemctl disable firewalld
+</code></pre>
+<p>查看状态</p>
+<pre><code>firewall-cmd --state
+</code></pre>
+<hr>
+<h3 id="先检查是否安装了iptables">先检查是否安装了iptables</h3>
+<pre><code>service iptables status
+</code></pre>
+<h3 id="安装iptables">安装iptables</h3>
+<pre><code>yum install -y iptables
+</code></pre>
+<h3 id="安装iptables-services">安装iptables-services</h3>
+<pre><code>yum -y install iptables-services
+</code></pre>
+<h3 id="注册iptables服务相当于以前的chkconfig-iptables-on">注册iptables服务，相当于以前的chkconfig iptables on</h3>
+<pre><code>systemctl enable iptables.service
+</code></pre>
+<h3 id="开启服务">开启服务</h3>
+<pre><code>`systemctl start iptables.service
+</code></pre>
+<h3 id="查看状态">查看状态</h3>
+<pre><code>systemctl status iptables.service
+</code></pre>
+<h3 id="查看iptables现有规则">查看iptables现有规则：</h3>
+<pre><code>iptables -L -n
+</code></pre>
+<h3 id="添加开放80端口">添加开放80端口：</h3>
+<pre><code>iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT（好像这种方式重启以后就失效了）
+</code></pre>
+<pre><code>编辑配置文件方式添加端口：
+文件位置：/etc/sysconfig/iptables
+执行vi /etc/sysconfig/iptables
+添加一条规则开放80端口：-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+重启生效：service restart iptables
+
+systemctl stop iptables
+</code></pre>
+<h3 id="查看iptables现有规则-2">查看iptables现有规则</h3>
+<pre><code>iptables -L -n
+</code></pre>
+<h3 id="先允许所有不然有可能会杯具">先允许所有,不然有可能会杯具</h3>
+<pre><code>iptables -P INPUT ACCEPT
+</code></pre>
+<h3 id="清空所有默认规则">清空所有默认规则</h3>
+<pre><code>iptables -F
+</code></pre>
+<h3 id="清空所有自定义规则">清空所有自定义规则</h3>
+<pre><code>iptables -X
+</code></pre>
+<h3 id="所有计数器归0">所有计数器归0</h3>
+<pre><code>iptables -Z
+</code></pre>
+<h3 id="允许来自于lo接口的数据包本地访问">允许来自于lo接口的数据包(本地访问)</h3>
+<p>iptables -A INPUT -i lo -j ACCEPT</p>
+<h3 id="开放22端口">开放22端口</h3>
+<pre><code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+</code></pre>
+<h3 id="开放21端口ftp">开放21端口(FTP)</h3>
+<pre><code>iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+</code></pre>
+<h3 id="开放80端口http">开放80端口(HTTP)</h3>
+<pre><code>iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+</code></pre>
+<h3 id="开放443端口https">开放443端口(HTTPS)</h3>
+<pre><code>iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+</code></pre>
+<h3 id="允许ping">允许ping</h3>
+<pre><code>iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
+</code></pre>
+<h3 id="允许接受本机请求之后的返回数据-related是为ftp设置的">允许接受本机请求之后的返回数据 RELATED,是为FTP设置的</h3>
+<pre><code>iptables -A INPUT -m state --state  RELATED,ESTABLISHED -j ACCEPT
+</code></pre>
+<h3 id="其他入站一律丢弃">其他入站一律丢弃</h3>
+<pre><code>iptables -P INPUT DROP
+</code></pre>
+<h3 id="所有出站一律绿灯">所有出站一律绿灯</h3>
+<pre><code>iptables -P OUTPUT ACCEPT
+</code></pre>
+<h3 id="所有转发一律丢弃">所有转发一律丢弃</h3>
+<pre><code>iptables -P FORWARD DROP
+</code></pre>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
         <id>http://yangcantian.github.io/post/hello-gridea/</id>

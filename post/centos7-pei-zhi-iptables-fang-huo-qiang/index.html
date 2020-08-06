@@ -8,7 +8,7 @@
 <meta name="keywords" content="静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>博客</title>
+<title>CentOS7配置iptables防火墙 | 博客</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1596722283314">
 <link rel="stylesheet" href="/media/css/pisces.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
@@ -38,7 +38,8 @@
 
 
 
-  <meta name="description" content="温故而知新">
+  <meta name="description" content="CentOS7配置iptables防火墙" />
+  <meta name="keywords" content="" />
 </head>
 
 <body>
@@ -87,7 +88,7 @@
             
               
             
-            <li class="nav-item nav-item-active">
+            <li class="nav-item ">
               
               
                 <a href="/archives/" target="_self">
@@ -171,10 +172,26 @@
   <div class="main-continer">
     
     <div
-      class="section-layout  pisces">
+      class="section-layout pisces ">
       <div class="section-layout-wrapper">
-        <div id="sidebarMeta" class="sidebar">
-    
+        
+
+<div class="sidebar">
+  
+    <div class="sidebar-box box-shadow-wrapper bg-color right-motion" id="sidebar">
+      
+        <div class="post-list-sidebar">
+          <div class="sidebar-title">
+            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active language" data-lan="index">文章目录</span>
+            <span id="metaSideBar" class="sidebar-title-item language" data-lan="preview">站点概览</span>
+          </div>
+        </div>
+      
+      <div class="sidebar-body pisces" id="sidebar_body">
+        
+          
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -217,89 +234,472 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#%E5%85%B3%E9%97%ADfirewalld">关闭firewalld</a></li>
+<li><a href="#%E5%8F%96%E6%B6%88%E5%BC%80%E6%9C%BA%E5%90%AF%E5%8A%A8">取消开机启动</a></li>
+<li><a href="#%E5%85%88%E6%A3%80%E6%9F%A5%E6%98%AF%E5%90%A6%E5%AE%89%E8%A3%85%E4%BA%86iptables">先检查是否安装了iptables</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85iptables">安装iptables</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85iptables-services">安装iptables-services</a></li>
+<li><a href="#%E6%B3%A8%E5%86%8Ciptables%E6%9C%8D%E5%8A%A1%E7%9B%B8%E5%BD%93%E4%BA%8E%E4%BB%A5%E5%89%8D%E7%9A%84chkconfig-iptables-on">注册iptables服务，相当于以前的chkconfig iptables on</a></li>
+<li><a href="#%E5%BC%80%E5%90%AF%E6%9C%8D%E5%8A%A1">开启服务</a></li>
+<li><a href="#%E6%9F%A5%E7%9C%8B%E7%8A%B6%E6%80%81">查看状态</a></li>
+<li><a href="#%E6%9F%A5%E7%9C%8Biptables%E7%8E%B0%E6%9C%89%E8%A7%84%E5%88%99">查看iptables现有规则：</a></li>
+<li><a href="#%E6%B7%BB%E5%8A%A0%E5%BC%80%E6%94%BE80%E7%AB%AF%E5%8F%A3">添加开放80端口：</a></li>
+<li><a href="#%E6%9F%A5%E7%9C%8Biptables%E7%8E%B0%E6%9C%89%E8%A7%84%E5%88%99-2">查看iptables现有规则</a></li>
+<li><a href="#%E5%85%88%E5%85%81%E8%AE%B8%E6%89%80%E6%9C%89%E4%B8%8D%E7%84%B6%E6%9C%89%E5%8F%AF%E8%83%BD%E4%BC%9A%E6%9D%AF%E5%85%B7">先允许所有,不然有可能会杯具</a></li>
+<li><a href="#%E6%B8%85%E7%A9%BA%E6%89%80%E6%9C%89%E9%BB%98%E8%AE%A4%E8%A7%84%E5%88%99">清空所有默认规则</a></li>
+<li><a href="#%E6%B8%85%E7%A9%BA%E6%89%80%E6%9C%89%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%84%E5%88%99">清空所有自定义规则</a></li>
+<li><a href="#%E6%89%80%E6%9C%89%E8%AE%A1%E6%95%B0%E5%99%A8%E5%BD%920">所有计数器归0</a></li>
+<li><a href="#%E5%85%81%E8%AE%B8%E6%9D%A5%E8%87%AA%E4%BA%8Elo%E6%8E%A5%E5%8F%A3%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85%E6%9C%AC%E5%9C%B0%E8%AE%BF%E9%97%AE">允许来自于lo接口的数据包(本地访问)</a></li>
+<li><a href="#%E5%BC%80%E6%94%BE22%E7%AB%AF%E5%8F%A3">开放22端口</a></li>
+<li><a href="#%E5%BC%80%E6%94%BE21%E7%AB%AF%E5%8F%A3ftp">开放21端口(FTP)</a></li>
+<li><a href="#%E5%BC%80%E6%94%BE80%E7%AB%AF%E5%8F%A3http">开放80端口(HTTP)</a></li>
+<li><a href="#%E5%BC%80%E6%94%BE443%E7%AB%AF%E5%8F%A3https">开放443端口(HTTPS)</a></li>
+<li><a href="#%E5%85%81%E8%AE%B8ping">允许ping</a></li>
+<li><a href="#%E5%85%81%E8%AE%B8%E6%8E%A5%E5%8F%97%E6%9C%AC%E6%9C%BA%E8%AF%B7%E6%B1%82%E4%B9%8B%E5%90%8E%E7%9A%84%E8%BF%94%E5%9B%9E%E6%95%B0%E6%8D%AE-related%E6%98%AF%E4%B8%BAftp%E8%AE%BE%E7%BD%AE%E7%9A%84">允许接受本机请求之后的返回数据 RELATED,是为FTP设置的</a></li>
+<li><a href="#%E5%85%B6%E4%BB%96%E5%85%A5%E7%AB%99%E4%B8%80%E5%BE%8B%E4%B8%A2%E5%BC%83">其他入站一律丢弃</a></li>
+<li><a href="#%E6%89%80%E6%9C%89%E5%87%BA%E7%AB%99%E4%B8%80%E5%BE%8B%E7%BB%BF%E7%81%AF">所有出站一律绿灯</a></li>
+<li><a href="#%E6%89%80%E6%9C%89%E8%BD%AC%E5%8F%91%E4%B8%80%E5%BE%8B%E4%B8%A2%E5%BC%83">所有转发一律丢弃</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
 </div>
+
 <script>
-  let sidebarMeta = document.querySelector('#sidebarMeta');
-  let scheme = 'pisces';
-  let sidebarWrapper = document.querySelector('.sidebar-wrapper');
-  if (sidebarMeta && (scheme === 'pisces' || scheme === 'gemini')) {
-    document.addEventListener('scroll', function(e) {
-      if (document.scrollingElement.scrollTop > parseInt(sidebarMeta.style.marginTop) + 10) {
-        sidebarWrapper.classList.add('home-sidebar-fixed')
-      } else {
-        sidebarWrapper.classList.remove('home-sidebar-fixed')
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
       }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0] && elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
     });
   }
-  </script>
-        <div class="section-box box-shadow-wrapper">
-          <section class="section archives-section bg-color posts-expand">
-            
 
-<div class="bg-color">
-  <div class="archive-timeline-box">
-    <div class="archive-timeline-title">
-      
-        <h2 class="language" data-lan="archives" data-count="2">非常好！目前共计2篇日志，继续努力！</h2>
-      
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
+          
+        
+      </div>
     </div>
+  
+</div>
+<script>
+  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
+  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
+  const SLIDE_UP_IN = 'slide-up-in';
+
+  let sidebar = document.querySelector('#sidebar'),
+  tocSideBar = document.querySelector('#tocSideBar'),
+  metaSideBar = document.querySelector('#metaSideBar'),
+  postToc = document.querySelector('#post_toc'),
+  postSiteMeta = document.querySelector('#post_side_meta'),
+  sidebarTitle = document.querySelector('.sidebar-title'),
+  sidebarBody = document.querySelector('#sidebar_body');
+
+  tocSideBar && tocSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  metaSideBar && metaSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  function toggleSidebar(e) {
+    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
+    if (currentTitle == e.srcElement) {
+      return ;
+    }
+    let current, showElement, hideElement;
+    if (e.srcElement == metaSideBar) {
+      showElement = postSiteMeta;
+      hideElement = postToc;
+    } else if (e.srcElement == tocSideBar){
+      showElement = postToc;
+      hideElement = postSiteMeta;
+    }
+    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
+    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
+
+    window.Velocity(hideElement, 'stop');
+    window.Velocity(hideElement, 'transition.slideUpOut', {
+      display: 'none',
+      duration: 200,
+      complete: function () {
+        window.Velocity(showElement, 'transition.slideDownIn', {
+          duration: 200
+        });
+      }
+    })
+    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
+    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
+  }
+
+  postToc && postToc.addEventListener('transitionend', function() {
+    this.classList.remove(SLIDE_UP_IN);
+  });
+
+  if (sidebarBody) {
+    if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
+      let hasFix = false;
+      let scrollEl = document.querySelector('.main-continer');
+      let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
+      window.addEventListener('scroll', function(e) {
+        if (document.scrollingElement.scrollTop >= limitTop) {
+          if (!hasFix) {
+            sidebar.classList.add('sidebar-fixed');
+            hasFix = true;
+          }
+        } else {
+          if (hasFix) {
+            sidebar.classList.remove('sidebar-fixed');
+            hasFix = false;
+          }
+        }
+      });
+    }
+  }
+  
+</script>
+        <div class="section-box box-shadow-wrapper">
+          <div class="section bg-color post post-page">
+            <section class="post-header">
+  <h1 class="post-title">
+    <a class="post-title-link" href="http://yangcantian.github.io/post/centos7-pei-zhi-iptables-fang-huo-qiang/">
+      CentOS7配置iptables防火墙
+    </a>
+  </h1>
+  <div class="post-meta">
     
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2020</h2>
-        </div>    
-        
-      
-      <a href="http://yangcantian.github.io/post/centos7-pei-zhi-iptables-fang-huo-qiang/">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              08-06
-              <small>CentOS7配置iptables防火墙</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
+    <span class="meta-item pc-show">
+      <i class="fa fa-calendar-o"></i>
+      <span class="language" data-lan="publish">发布于</span>
+      <span class="publish-time" data-t="2020-08-06 21:40:50">2020-08-06</span>
+      <span class="post-meta-divider pc-show">|</span>
+    </span>
     
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2018</h2>
-        </div>    
-        
-      
-      <a href="http://yangcantian.github.io/post/hello-gridea/">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              12-12
-              <small>Hello Gridea</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
+    <span class="meta-item">
+      <i class="fa fa-clock-o"></i>
+      <span>3<span class="language" data-lan="minute">分钟</span></span>
+    </span>
+    <span class="meta-item">
+      <span class="post-meta-divider">|</span>
+      <i class="fa fa-file-word-o"></i>
+      <span>445<span class="pc-show language" data-lan="words">字数</span></span>
+    </span>
+    
+    
+    
+    <span id="/post/centos7-pei-zhi-iptables-fang-huo-qiang/" data-flag-title="CentOS7配置iptables防火墙" class="meta-item pc-show leancloud_visitors">
+      <span class="post-meta-divider">|</span>
+      <i class="fa fa-eye"></i>
+      <span><span class="language" data-lan="view">浏览量</span>：<span class="leancloud-visitors-count"></span></span>
+    </span>
     
   </div>
-  
-<div class="page bg-color">
-  <ul class="pagination-ul">
-    
-    
-      
-        <li class="pagination-li pagination-active">
-            <a href="/archives/page/../">
-              1
-            </a>
-        </li>
-      
-    
-    
-  </ul>
-</div>
-</div>
+</section>
+            <div class="post-body next-md-body" id="post_body">
+              <!-- more -->
+<p><strong>CentOS 7中默认是firewalld防火墙，如果使用iptables需要先关闭firewalld防火墙（1.关闭防火墙，2.取消开机启动）。</strong></p>
+<h3 id="关闭firewalld">关闭firewalld</h3>
+<pre><code class="language-python">systemctl stop firewalld
+</code></pre>
+<h3 id="取消开机启动">取消开机启动</h3>
+<pre><code>systemctl disable firewalld
+</code></pre>
+<p>查看状态</p>
+<pre><code>firewall-cmd --state
+</code></pre>
+<hr>
+<h3 id="先检查是否安装了iptables">先检查是否安装了iptables</h3>
+<pre><code>service iptables status
+</code></pre>
+<h3 id="安装iptables">安装iptables</h3>
+<pre><code>yum install -y iptables
+</code></pre>
+<h3 id="安装iptables-services">安装iptables-services</h3>
+<pre><code>yum -y install iptables-services
+</code></pre>
+<h3 id="注册iptables服务相当于以前的chkconfig-iptables-on">注册iptables服务，相当于以前的chkconfig iptables on</h3>
+<pre><code>systemctl enable iptables.service
+</code></pre>
+<h3 id="开启服务">开启服务</h3>
+<pre><code>`systemctl start iptables.service
+</code></pre>
+<h3 id="查看状态">查看状态</h3>
+<pre><code>systemctl status iptables.service
+</code></pre>
+<h3 id="查看iptables现有规则">查看iptables现有规则：</h3>
+<pre><code>iptables -L -n
+</code></pre>
+<h3 id="添加开放80端口">添加开放80端口：</h3>
+<pre><code>iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT（好像这种方式重启以后就失效了）
+</code></pre>
+<pre><code>编辑配置文件方式添加端口：
+文件位置：/etc/sysconfig/iptables
+执行vi /etc/sysconfig/iptables
+添加一条规则开放80端口：-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+重启生效：service restart iptables
 
-          </section>
+systemctl stop iptables
+</code></pre>
+<h3 id="查看iptables现有规则-2">查看iptables现有规则</h3>
+<pre><code>iptables -L -n
+</code></pre>
+<h3 id="先允许所有不然有可能会杯具">先允许所有,不然有可能会杯具</h3>
+<pre><code>iptables -P INPUT ACCEPT
+</code></pre>
+<h3 id="清空所有默认规则">清空所有默认规则</h3>
+<pre><code>iptables -F
+</code></pre>
+<h3 id="清空所有自定义规则">清空所有自定义规则</h3>
+<pre><code>iptables -X
+</code></pre>
+<h3 id="所有计数器归0">所有计数器归0</h3>
+<pre><code>iptables -Z
+</code></pre>
+<h3 id="允许来自于lo接口的数据包本地访问">允许来自于lo接口的数据包(本地访问)</h3>
+<p>iptables -A INPUT -i lo -j ACCEPT</p>
+<h3 id="开放22端口">开放22端口</h3>
+<pre><code>iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+</code></pre>
+<h3 id="开放21端口ftp">开放21端口(FTP)</h3>
+<pre><code>iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+</code></pre>
+<h3 id="开放80端口http">开放80端口(HTTP)</h3>
+<pre><code>iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+</code></pre>
+<h3 id="开放443端口https">开放443端口(HTTPS)</h3>
+<pre><code>iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+</code></pre>
+<h3 id="允许ping">允许ping</h3>
+<pre><code>iptables -A INPUT -p icmp --icmp-type 8 -j ACCEPT
+</code></pre>
+<h3 id="允许接受本机请求之后的返回数据-related是为ftp设置的">允许接受本机请求之后的返回数据 RELATED,是为FTP设置的</h3>
+<pre><code>iptables -A INPUT -m state --state  RELATED,ESTABLISHED -j ACCEPT
+</code></pre>
+<h3 id="其他入站一律丢弃">其他入站一律丢弃</h3>
+<pre><code>iptables -P INPUT DROP
+</code></pre>
+<h3 id="所有出站一律绿灯">所有出站一律绿灯</h3>
+<pre><code>iptables -P OUTPUT ACCEPT
+</code></pre>
+<h3 id="所有转发一律丢弃">所有转发一律丢弃</h3>
+<pre><code>iptables -P FORWARD DROP
+</code></pre>
+
+            </div>
+            
+            
+              <div class="post-footer">
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong class="language" data-lan="author">本文作者：</strong>
+      以后再说吧！
+    </li>
+    <li class="post-copyright-link">
+      <strong class="language" data-lan="link">本文链接：</strong>
+      <a href="http://yangcantian.github.io/post/centos7-pei-zhi-iptables-fang-huo-qiang/" title="CentOS7配置iptables防火墙">http://yangcantian.github.io/post/centos7-pei-zhi-iptables-fang-huo-qiang/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong class="language" data-lan="copyright">版权声明： </strong>
+      本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+  <div class="tags">
+    
+  </div>
+  <div class="nav">
+    <div class="nav-prev">
+      
+    </div>
+    <div class="nav-next">
+      
+        <a class="nav-pc-next" title="Hello Gridea" href="http://yangcantian.github.io/post/hello-gridea/">Hello Gridea</a>
+        <a class="nav-mobile-next" title="Hello Gridea" href="http://yangcantian.github.io/post/hello-gridea/">下一篇</a>
+        <i class="fa fa-chevron-right"></i>
+      
+    </div>
+  </div>
+</div>
+            
+            
+  
+
+          </div>
         </div>
       </div>
     </div>
@@ -486,6 +886,253 @@
   }
 
 </script>
+    <div class="light-box" id="light_box"></div>
+<script>
+  let imgs = document.querySelectorAll('.post-body img');
+  let lightBox = document.querySelector('#light_box');
+  lightBox.addEventListener('mousedown', (e) => {
+    e.preventDefault()
+  })
+  lightBox.addEventListener('mousewheel', (e) => {
+    e.preventDefault()
+  })
+  let width = window.innerWidth * 0.8;
+  lightBox.onclick = () => {
+    let img = lightBox.querySelector('img');
+    lightBox.style = '';
+    img && img.remove();
+  }
+  imgs.forEach(item => {
+    item.onclick = function (e) {
+      let lightImg = document.createElement('img');
+      lightImg.src = this.src;
+      lightBox.style = `height: 100%; opacity: 1; background-color: rgba(0, 0, 0, 0.5);cursor: zoom-out;`;
+      lightImg.style = `width: ${width}px;border-radius: 2px;`;
+      lightImg.onclick = function () {
+        lightBox.style = '';
+        this.remove();
+      }
+      lightBox.append(lightImg);
+    }
+  })
+</script>
+    <div class="reward-mask" style="display: none;">
+  <div class="reward-relative">
+    <span class="close" aria-hidden="true">x</span>
+    <div class="reward-body">
+      <h2>感谢您的支持，我会继续努力的!</h2>
+      <div class="reward-img-box">
+        <div style="position: relative; width: 140px; height: 140px;">
+          
+          
+          
+        </div>
+      </div>
+      <p class="reward-word">扫码打赏，你说多少就多少</p>
+      <p class="reward-tip">打开微信扫一扫，即可进行扫码打赏哦</p>
+    </div>
+    <div class="bottom">
+      
+      
+    </div>
+  </div>
+</div>
+<style>
+  .reward-mask {
+    position: fixed;
+    z-index: 99999;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #00000054;
+  }
+
+  .reward-relative {
+    position: relative;
+    width: 480px;
+    text-align: center;
+    margin: 0 auto;
+    border-radius: 5px;
+    background-color: #fff;
+    top: 50%;
+    margin-top: -205px;
+  }
+
+  .reward-relative .close {
+    position: absolute;
+    right: 10px;
+    font-weight: normal;
+    font-size: 16px;
+    color: #929292;
+  }
+
+  .reward-body {
+    padding: 40px 20px 20px;
+  }
+
+  .bottom {
+    display: flex;
+  }
+
+  .reward-btn {
+    text-align: center;
+  }
+
+  .reward-btn-text {
+    display: inline-block;
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    border-radius: 50%;
+    background-color: #ff9734;
+    color: #FFF;
+    margin-top: 20px;
+  }
+
+  .pay-text {
+    margin-top: 10px;
+    padding: 10px;
+    flex: 1;
+    transition: all .2s linear;
+  }
+
+  .pay-text:hover {
+    background-color: #a5a5a536;
+  }
+
+  .reward-body h2 {
+    padding-top: 10px;
+    text-align: center;
+    color: #a3a3a3;
+    font-size: 16px;
+    font-weight: normal;
+    margin: 0 0 20px;
+  }
+
+  .reward-body h2:after,
+  .reward-body h2:before {
+    font-family: Arial, Helvetica, sans-serif;
+    background: 0 0;
+    width: 0;
+    height: 0;
+    font-style: normal;
+    color: #eee;
+    font-size: 80px;
+    position: absolute;
+    top: 20px;
+  }
+
+  .reward-body h2:before {
+    content: '\201c';
+    left: 50px;
+  }
+
+  .reward-body h2:after {
+    content: '\201d';
+    right: 80px;
+  }
+
+  .reward-img-box {
+    display: inline-block;
+    padding: 10px;
+    border: 6px solid #ea5f00;
+    margin: 0 auto;
+    border-radius: 3px;
+    position: relative;
+  }
+
+  .reward-img {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 767px) {
+    .reward-relative {
+      height: 100%;
+      top: 0px;
+      margin-top: 0;
+      width: auto;
+    }
+
+    .reward-relative .bottom {
+      flex-direction: column;
+    }
+
+    .reward-relative .pay-text {
+      width: 80%;
+      margin: 5px auto;
+      border: 1px solid silver;
+      padding: 6px;
+      border-radius: 4px;
+    }
+
+    .reward-body h2:after {
+      right: 40px;
+    }
+
+    .reward-body h2:after,
+    .reward-body h2:before {
+      font-size: 60px;
+    }
+
+    .reward-body h2:before {
+      left: 20px;
+    }
+  }
+</style>
+<script>
+  !function () {
+    var mask = document.querySelector('.reward-mask');
+    let close = document.querySelector('.reward-relative .close');
+    let rewardBtn = document.querySelector('.reward-btn');
+
+    let zfb = document.querySelector('#zfb'),
+      wx = document.querySelector('#wx'),
+      zfbBtn = document.querySelector('#zfbBtn'),
+      wxBtn = document.querySelector('#wxBtn');
+
+    if (zfbBtn && wxBtn) {
+      zfbBtn.addEventListener('click', () => {
+        window.Velocity(zfb, 'transition.slideLeftIn', {
+          duration: 400
+        });
+        window.Velocity(wx, 'transition.slideRightOut', {
+          display: 'none',
+          duration: 400
+        });
+      });
+
+      wxBtn.addEventListener('click', () => {
+        window.Velocity(wx, 'transition.slideRightIn', {
+          duration: 400
+        });
+        window.Velocity(zfb, 'transition.slideLeftOut', {
+          display: 'none',
+          duration: 400
+        });
+      });
+    }
+
+    rewardBtn.addEventListener('click', (e) => {
+      window.Velocity(mask, 'transition.slideDownIn', {
+        duration: 400
+      })
+    });
+
+    close.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.Velocity(mask, 'transition.slideUpOut', {
+        duration: 400
+      })
+    })
+  }()
+</script>
+
   </div>
 </body>
 
@@ -943,6 +1590,5 @@ systemctl stop iptables
   // Using config rendering effect at 'element'.
   const cn = new CanvasNest(document.querySelector('.snow-container'), config);
   </script>
-
 
 </html>
